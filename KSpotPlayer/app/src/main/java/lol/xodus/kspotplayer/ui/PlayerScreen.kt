@@ -1,6 +1,8 @@
 package lol.xodus.kspotplayer.ui
 
 import android.annotation.SuppressLint
+import android.util.Log
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.hoverable
@@ -9,7 +11,6 @@ import androidx.compose.foundation.interaction.Interaction
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.PressInteraction
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -18,7 +19,6 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -55,6 +55,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
@@ -76,12 +77,11 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.rememberTextMeasurer
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.IntOffset
+import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.min
 import androidx.compose.ui.unit.sp
-import kotlin.math.roundToInt
 
 
 private val SLIDER_THUMB_WIDTH = 8.dp
@@ -101,7 +101,7 @@ fun PlayerScreen(innerPadding: PaddingValues = PaddingValues()) {
     var favorite by rememberSaveable { mutableStateOf(false) }
     var more by rememberSaveable { mutableStateOf(false) }
 
-    val sliderState = remember { SliderState() }
+    var sliderValue by rememberSaveable { mutableFloatStateOf(0.5f) }
     val sliderInteractionSource = remember { MutableInteractionSource() }
 
     var albumArtOffset by remember { mutableStateOf(Offset.Zero) }
@@ -111,7 +111,7 @@ fun PlayerScreen(innerPadding: PaddingValues = PaddingValues()) {
         derivedStateOf {
             with (density) {
                 sliderOffset + Offset(
-                    x = (sliderSize.width - SLIDER_THUMB_WIDTH.toPx()) * sliderState.value + SLIDER_THUMB_WIDTH.toPx() * 0.5f,
+                    x = (sliderSize.width - SLIDER_THUMB_WIDTH.toPx()) * sliderValue + SLIDER_THUMB_WIDTH.toPx() * 0.5f,
                     y = sliderSize.height * 0.5f
                 )
             }
@@ -290,7 +290,14 @@ fun PlayerScreen(innerPadding: PaddingValues = PaddingValues()) {
                         .onSizeChanged {
                             sliderSize = it
                         },
-                    state = sliderState,
+                    value = sliderValue,
+                    onValueChange = {
+                        controlling = true
+                        sliderValue = it
+                    },
+                    onValueChangeFinished = {
+                        controlling = false
+                    },
                     colors = SliderDefaults.colors(
                         activeTrackColor = MaterialTheme.extendedColorScheme.contentColorHigh,
                         inactiveTrackColor = MaterialTheme.extendedColorScheme.contentColorMiddle,
@@ -309,7 +316,6 @@ fun PlayerScreen(innerPadding: PaddingValues = PaddingValues()) {
                                     is DragInteraction.Cancel -> interactions.remove(interaction.start)
                                 }
                             }
-                            controlling = interactions.isNotEmpty()
                         }
 
                         Spacer(
@@ -318,7 +324,7 @@ fun PlayerScreen(innerPadding: PaddingValues = PaddingValues()) {
                                 .height(SLIDER_THUMB_HEIGHT)
                                 .hoverable(interactionSource = sliderInteractionSource)
                                 .background(
-                                    color = MaterialTheme.extendedColorScheme.contentColorHigh,
+                                    color = if (controlling) Color.Transparent else MaterialTheme.extendedColorScheme.contentColorHigh,
                                     shape = RoundedCornerShape(percent = 100)
                                 )
                         )
@@ -455,22 +461,14 @@ fun PlayerScreen(innerPadding: PaddingValues = PaddingValues()) {
         }
 
         // Overlay
-        Box(
-            modifier = Modifier.fillMaxSize()
+        AnimatedVisibility(
+            visible = controlling || true
         ) {
-            Box(
-                modifier = Modifier
-                    .size(with (LocalDensity.current) { 20f.toDp() })
-                    .offset { albumArtOffset.run { IntOffset(x.roundToInt(), y.roundToInt()) - IntOffset(10, 10) } }
-                    .align(Alignment.TopStart)
-                    .background(color = Color.Green)
-            )
-            Box(
-                modifier = Modifier
-                    .size(with (LocalDensity.current) { 20f.toDp() })
-                    .offset { sliderThumbOffset.run { IntOffset(x.roundToInt(), y.roundToInt()) - IntOffset(10, 10) } }
-                    .align(Alignment.TopStart)
-                    .background(color = Color.Blue)
+            PlayerOverlay(
+                albumArtOffset = albumArtOffset,
+                sliderThumbOffset = sliderThumbOffset,
+                sliderThumbSize = DpSize(width = SLIDER_THUMB_WIDTH, height = SLIDER_THUMB_HEIGHT),
+                debugMode = favorite,
             )
         }
     }
