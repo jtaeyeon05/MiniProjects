@@ -183,7 +183,8 @@ data class ExtendedColorScheme(
     val contentColorMiddle: Color,
     val contentColorLow: Color,
     val effectShadow: Color,
-    val effectLight: Color,
+    val effectLight1: Color,
+    val effectLight2: Color,
     val effectPowerLight: Color,
 )
 
@@ -194,8 +195,9 @@ val MaterialTheme.extendedColorScheme: ExtendedColorScheme
         contentColorMiddle = LocalContentColor.current.copy(alpha = 0.5f),
         contentColorLow = LocalContentColor.current.copy(alpha = 0.25f),
         effectShadow = Color(0xFF000000).copy(alpha = 0.5f),
-        effectLight = Color.White.copy(alpha = 0.75f),
-        effectPowerLight = Color(0xFF5485F1).copy(alpha = 0.25f),
+        effectLight1 = Color.White,
+        effectLight2 = Color.White.copy(alpha = 0.5f),
+        effectPowerLight = Color(0xFF5485F1).copy(alpha = 0.1f),
     )
 
 
