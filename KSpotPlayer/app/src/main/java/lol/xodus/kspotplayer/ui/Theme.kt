@@ -1,6 +1,7 @@
 package lol.xodus.kspotplayer.ui
 
 import androidx.compose.foundation.isSystemInDarkTheme
+import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Typography
 import androidx.compose.material3.darkColorScheme
@@ -177,19 +178,25 @@ private val darkScheme = darkColorScheme(
 
 
 @Immutable
-data class ExtendedColors(
-    val shadow: Color,
-    val light: Color,
-    val powerLight: Color,
+data class ExtendedColorScheme(
+    val contentColorHigh: Color,
+    val contentColorMiddle: Color,
+    val contentColorLow: Color,
+    val effectShadow: Color,
+    val effectLight: Color,
+    val effectPowerLight: Color,
 )
 
-val LocalExtendedColors = staticCompositionLocalOf<ExtendedColors?> { null }
-
-private val extendedColors = ExtendedColors(
-    shadow = Color.Black.copy(alpha = 0.5f),
-    light = Color.White.copy(alpha = 0.75f),
-    powerLight = Color(0xFF5485F1).copy(alpha = 0.25f),
-)
+val MaterialTheme.extendedColorScheme: ExtendedColorScheme
+    @Composable
+    get () = ExtendedColorScheme(
+        contentColorHigh = LocalContentColor.current,
+        contentColorMiddle = LocalContentColor.current.copy(alpha = 0.6666f),
+        contentColorLow = LocalContentColor.current.copy(alpha = 0.3333f),
+        effectShadow = Color(0xFF000000).copy(alpha = 0.5f),
+        effectLight = Color.White.copy(alpha = 0.75f),
+        effectPowerLight = Color(0xFF5485F1).copy(alpha = 0.25f),
+    )
 
 
 val NotoSansKR: FontFamily
@@ -261,11 +268,9 @@ fun AppTheme(
     darkTheme: Boolean = isSystemInDarkTheme(),
     content: @Composable() (() -> Unit)
 ) {
-    CompositionLocalProvider(LocalExtendedColors provides extendedColors) {
-        MaterialTheme(
-            colorScheme = if (darkTheme) darkScheme else lightScheme,
-            typography = AppTypography,
-            content = content
-        )
-    }
+    MaterialTheme(
+        colorScheme = if (darkTheme) darkScheme else lightScheme,
+        typography = AppTypography,
+        content = content
+    )
 }
