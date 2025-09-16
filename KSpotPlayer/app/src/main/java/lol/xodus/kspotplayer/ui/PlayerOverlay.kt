@@ -46,6 +46,8 @@ fun PlayerOverlay(
     val debugColorMap = mapOf(
         "Marker" to Color.Green,
         "CenterLine" to Color.Gray,
+        "SidePower" to Color.LightGray,
+        "RadiusPower" to Color.Cyan,
         "Shadow" to Color.White,
         "CenterForward" to Color.Red,
         "CenterForwardPower" to Color.Yellow,
@@ -117,31 +119,161 @@ fun PlayerOverlay(
             }
 
             // CenterLine ↑
+            // SidePower ↓
+
+            run {
+                val sidePowerRadian = PI_F * 0.03f
+                // LeftSidePower
+                run {
+                    val left = thetaLeft + sidePowerRadian
+                    val right = thetaLeft - sidePowerRadian
+
+                    val targetXLeft = thumbX + (thumbY + SAFE_AREA_PX_D) / tan(left)
+                    val targetYLeft = thumbY - abs(((if (left < PI_F * 0.5f) width - thumbX else thumbX) + SAFE_AREA_PX_D) * tan(left))
+                    val targetXRight = thumbX + (thumbY + SAFE_AREA_PX_D) / tan(right)
+                    val targetYRight = thumbY - abs(((if (right < PI_F * 0.5f) width - thumbX else thumbX) + SAFE_AREA_PX_D) * tan(right))
+
+                    val path = Path().apply {
+                        moveTo(x = thumbX, y = thumbY)
+
+                        if (targetXLeft >= -SAFE_AREA_PX_D) {
+                            lineTo(x = targetXLeft, y = -SAFE_AREA_PX_D)
+                        } else {
+                            lineTo(x = -SAFE_AREA_PX_D, y = targetYLeft)
+                            lineTo(x = -SAFE_AREA_PX_D, y = -SAFE_AREA_PX_D)
+                        }
+
+                        if (targetXRight >= -SAFE_AREA_PX_D) {
+                            lineTo(x = targetXRight, y = -SAFE_AREA_PX_D)
+                        } else {
+                            lineTo(x = -SAFE_AREA_PX_D, y = targetYRight)
+                        }
+
+                        lineTo(x = thumbX, y = thumbY)
+                        close()
+                    }
+
+                    drawPath(
+                        path = path,
+                        color = extendedColorScheme.effectPowerLight,
+                    )
+                    if (debugMode) {
+                        drawPath(
+                            path = path,
+                            color = debugColorMap["SidePower"]!!,
+                            style = Stroke(width = DEBUG_WIDTH),
+                        )
+                    }
+                }
+                // RightSidePower
+                run {
+                    val left = thetaRight + sidePowerRadian
+                    val right = thetaRight - sidePowerRadian
+
+                    val targetXLeft = thumbX + (thumbY + SAFE_AREA_PX_D) / tan(left)
+                    val targetYLeft = thumbY - abs(((if (left < PI_F * 0.5f) width - thumbX else thumbX) + SAFE_AREA_PX_D) * tan(left))
+                    val targetXRight = thumbX + (thumbY + SAFE_AREA_PX_D) / tan(right)
+                    val targetYRight = thumbY - abs(((if (right < PI_F * 0.5f) width - thumbX else thumbX) + SAFE_AREA_PX_D) * tan(right))
+
+                    val path = Path().apply {
+                        moveTo(x = thumbX, y = thumbY)
+
+                        if (targetXRight <= width + SAFE_AREA_PX_D) {
+                            lineTo(x = targetXRight, y = -SAFE_AREA_PX_D)
+                        } else {
+                            lineTo(x = width + SAFE_AREA_PX_D, y = targetYRight)
+                            lineTo(x = width + SAFE_AREA_PX_D, y = -SAFE_AREA_PX_D)
+                        }
+
+                        if (targetXLeft <= width + SAFE_AREA_PX_D) {
+                            lineTo(x = targetXLeft, y = -SAFE_AREA_PX_D)
+                        } else {
+                            lineTo(x = width + SAFE_AREA_PX_D, y = targetYLeft)
+                        }
+
+                        lineTo(x = thumbX, y = thumbY)
+                        close()
+                    }
+
+                    drawPath(
+                        path = path,
+                        color = extendedColorScheme.effectPowerLight,
+                    )
+                    if (debugMode) {
+                        drawPath(
+                            path = path,
+                            color = debugColorMap["SidePower"]!!,
+                            style = Stroke(width = DEBUG_WIDTH),
+                        )
+                    }
+                }
+            }
+
+            // SidePower ↑
+            // RadiusPower ↓
+
+            run {
+                val radius = 96.dp.toPx()
+
+                drawArc(
+                    color = extendedColorScheme.effectLight,
+                    startAngle = -thetaLeft * 180f / PI_F,
+                    sweepAngle = SCATTER_RADIAN * 2f * 180f / PI_F,
+                    useCenter = true,
+                    topLeft = Offset(
+                        x = thumbX - radius,
+                        y = thumbY - radius
+                    ),
+                    size = Size(
+                        width = radius * 2f,
+                        height = radius * 2f,
+                    ),
+                )
+                if (debugMode) {
+                    drawArc(
+                        color = debugColorMap["RadiusPower"]!!,
+                        startAngle = -thetaLeft * 180f / PI_F,
+                        sweepAngle = SCATTER_RADIAN * 2f * 180f / PI_F,
+                        useCenter = true,
+                        topLeft = Offset(
+                            x = thumbX - radius,
+                            y = thumbY - radius
+                        ),
+                        size = Size(
+                            width = radius * 2f,
+                            height = radius * 2f,
+                        ),
+                        style = Stroke(width = DEBUG_WIDTH),
+                    )
+                }
+            }
+
+            // RadiusPower ↑
             // Shadow ↓
 
             run {
-                val leftTargetX = thumbX + (thumbY + SAFE_AREA_PX_D) / tan(thetaLeft)
-                val leftTargetY = thumbY - abs(((if (thetaLeft < PI_F * 0.5f) width - thumbX else thumbX) + SAFE_AREA_PX_D) * tan(thetaLeft))
-                val rightTargetX = thumbX + (thumbY + SAFE_AREA_PX_D) / tan(thetaRight)
-                val rightTargetY = thumbY - abs(((if (thetaRight < PI_F * 0.5f) width - thumbX else thumbX) + SAFE_AREA_PX_D) * tan(thetaRight))
+                val targetXLeft = thumbX + (thumbY + SAFE_AREA_PX_D) / tan(thetaLeft)
+                val targetYLeft = thumbY - abs(((if (thetaLeft < PI_F * 0.5f) width - thumbX else thumbX) + SAFE_AREA_PX_D) * tan(thetaLeft))
+                val targetXRight = thumbX + (thumbY + SAFE_AREA_PX_D) / tan(thetaRight)
+                val targetYRight = thumbY - abs(((if (thetaRight < PI_F * 0.5f) width - thumbX else thumbX) + SAFE_AREA_PX_D) * tan(thetaRight))
 
                 val path = Path().apply {
                     moveTo(x = thumbX, y = thumbY)
 
-                    if (leftTargetX >= -SAFE_AREA_PX_D) {
-                        lineTo(x = leftTargetX, y = -SAFE_AREA_PX_D)
+                    if (targetXLeft >= -SAFE_AREA_PX_D) {
+                        lineTo(x = targetXLeft, y = -SAFE_AREA_PX_D)
                         lineTo(x = -SAFE_AREA_PX_D, y = -SAFE_AREA_PX_D)
                     } else {
-                        lineTo(x = -SAFE_AREA_PX_D, y = leftTargetY)
+                        lineTo(x = -SAFE_AREA_PX_D, y = targetYLeft)
                     }
                     lineTo(x = -SAFE_AREA_PX_D, y = height + SAFE_AREA_PX_D)
                     lineTo(x = width + SAFE_AREA_PX_D, y = height + SAFE_AREA_PX_D)
 
-                    if (rightTargetX <= width + SAFE_AREA_PX_D) {
+                    if (targetXRight <= width + SAFE_AREA_PX_D) {
                         lineTo(x = width + SAFE_AREA_PX_D, y = -SAFE_AREA_PX_D)
-                        lineTo(x = rightTargetX, y = -SAFE_AREA_PX_D)
+                        lineTo(x = targetXRight, y = -SAFE_AREA_PX_D)
                     } else {
-                        lineTo(x = width + SAFE_AREA_PX_D, y = rightTargetY)
+                        lineTo(x = width + SAFE_AREA_PX_D, y = targetYRight)
                     }
 
                     lineTo(x = thumbX, y = thumbY)
@@ -245,7 +377,6 @@ fun PlayerOverlay(
             }
 
             // CenterLight ↑
-            // TODO: SidePower, RadiusPower
         }
 
         if (debugMode) {
