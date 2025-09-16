@@ -53,8 +53,8 @@ fun PlayerOverlay(
     val debugColorMap = mapOf(
         "Marker" to Color.Green,
         "CenterLine" to Color.Gray,
+        "RadialLight" to Color.Cyan,
         "SidePower" to Color.LightGray,
-        "RadiusPower" to Color.Cyan,
         "Shadow" to Color.White,
         "CenterForwardPower" to Color.Yellow,
         "CenterForward" to Color.Red,
@@ -200,6 +200,46 @@ private fun DrawScope.drawEffect(
     }
 
     // CenterLine ↑
+    // RadialLight ↓
+
+    run {
+        val radius = 64.dp.toPx()
+
+        if (!debugMode) {
+            drawArc(
+                color = extendedColorScheme.effectLight2,
+                startAngle = -thetaLeft * 180f / PI_F,
+                sweepAngle = SCATTER_RADIAN * 2f * 180f / PI_F,
+                useCenter = true,
+                topLeft = Offset(
+                    x = thumbX - radius,
+                    y = thumbY - radius
+                ),
+                size = Size(
+                    width = radius * 2f,
+                    height = radius * 2f,
+                ),
+            )
+        } else {
+            drawArc(
+                color = debugColorMap.getOrDefault("RadialLight", Color.White),
+                startAngle = -thetaLeft * 180f / PI_F,
+                sweepAngle = SCATTER_RADIAN * 2f * 180f / PI_F,
+                useCenter = true,
+                topLeft = Offset(
+                    x = thumbX - radius,
+                    y = thumbY - radius
+                ),
+                size = Size(
+                    width = radius * 2f,
+                    height = radius * 2f,
+                ),
+                style = Stroke(width = DEBUG_WIDTH),
+            )
+        }
+    }
+
+    // RadialLight ↑
     // SidePower ↓
 
     run {
@@ -293,46 +333,6 @@ private fun DrawScope.drawEffect(
     }
 
     // SidePower ↑
-    // RadiusPower ↓
-
-    run {
-        val radius = 64.dp.toPx()
-
-        if (!debugMode) {
-            drawArc(
-                color = extendedColorScheme.effectLight2,
-                startAngle = -thetaLeft * 180f / PI_F,
-                sweepAngle = SCATTER_RADIAN * 2f * 180f / PI_F,
-                useCenter = true,
-                topLeft = Offset(
-                    x = thumbX - radius,
-                    y = thumbY - radius
-                ),
-                size = Size(
-                    width = radius * 2f,
-                    height = radius * 2f,
-                ),
-            )
-        } else {
-            drawArc(
-                color = debugColorMap.getOrDefault("RadiusPower", Color.White),
-                startAngle = -thetaLeft * 180f / PI_F,
-                sweepAngle = SCATTER_RADIAN * 2f * 180f / PI_F,
-                useCenter = true,
-                topLeft = Offset(
-                    x = thumbX - radius,
-                    y = thumbY - radius
-                ),
-                size = Size(
-                    width = radius * 2f,
-                    height = radius * 2f,
-                ),
-                style = Stroke(width = DEBUG_WIDTH),
-            )
-        }
-    }
-
-    // RadiusPower ↑
     // Shadow ↓
 
     run {
