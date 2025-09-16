@@ -9,6 +9,7 @@ import androidx.compose.foundation.interaction.Interaction
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.PressInteraction
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -17,6 +18,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -65,21 +67,35 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.compositeOver
+import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.layout.onSizeChanged
+import androidx.compose.ui.layout.positionInWindow
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.drawText
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.rememberTextMeasurer
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.IntOffset
+import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.min
 import androidx.compose.ui.unit.sp
+import kotlin.math.roundToInt
+
+
+private val SLIDER_THUMB_WIDTH = 8.dp
+private val SLIDER_THUMB_HEIGHT = 32.dp
 
 
 @SuppressLint("UnusedBoxWithConstraintsScope")
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun PlayerScreen(innerPadding: PaddingValues = PaddingValues()) {
+    val density = LocalDensity.current
+
     var playing by rememberSaveable { mutableStateOf(false) }
+    var controlling by rememberSaveable { mutableStateOf(false) }
     var shuffle by rememberSaveable { mutableStateOf(false) }
     var repeat by rememberSaveable { mutableIntStateOf(0) }
     var favorite by rememberSaveable { mutableStateOf(false) }
@@ -87,6 +103,20 @@ fun PlayerScreen(innerPadding: PaddingValues = PaddingValues()) {
 
     val sliderState = remember { SliderState() }
     val sliderInteractionSource = remember { MutableInteractionSource() }
+
+    var albumArtOffset by remember { mutableStateOf(Offset.Zero) }
+    var sliderOffset by remember { mutableStateOf(Offset.Zero) }
+    var sliderSize by remember { mutableStateOf(IntSize.Zero) }
+    val sliderThumbOffset by remember {
+        derivedStateOf {
+            with (density) {
+                sliderOffset + Offset(
+                    x = (sliderSize.width - SLIDER_THUMB_WIDTH.toPx()) * sliderState.value + SLIDER_THUMB_WIDTH.toPx() * 0.5f,
+                    y = sliderSize.height * 0.5f
+                )
+            }
+        }
+    }
 
     Surface(
         modifier = Modifier
@@ -102,6 +132,7 @@ fun PlayerScreen(innerPadding: PaddingValues = PaddingValues()) {
         color = Color.Transparent,
         contentColor = MaterialTheme.colorScheme.onPrimary,
     ) {
+        // Player
         Column(
             modifier = Modifier
                 .fillMaxSize()
@@ -146,7 +177,12 @@ fun PlayerScreen(innerPadding: PaddingValues = PaddingValues()) {
             ) {
                 val albumArtSize by remember { derivedStateOf { min(maxWidth, maxHeight) } }
                 Surface(
-                    modifier = Modifier.size(albumArtSize),
+                    modifier = Modifier
+                        .size(albumArtSize)
+                        .onGloballyPositioned { coordinates ->
+                            val albumSizeHalfPx = with (density) { albumArtSize.toPx() * 0.5f }
+                            albumArtOffset = coordinates.positionInWindow() + Offset(x = albumSizeHalfPx, y = albumSizeHalfPx)
+                        },
                     shape = RoundedCornerShape(8.dp),
                     shadowElevation = 12.dp,
                 ) {
@@ -247,6 +283,13 @@ fun PlayerScreen(innerPadding: PaddingValues = PaddingValues()) {
                     .padding(horizontal = 12.dp)
             ) {
                 Slider(
+                    modifier = Modifier
+                        .onGloballyPositioned { coordinates ->
+                            sliderOffset = coordinates.positionInWindow()
+                        }
+                        .onSizeChanged {
+                            sliderSize = it
+                        },
                     state = sliderState,
                     colors = SliderDefaults.colors(
                         activeTrackColor = MaterialTheme.extendedColorScheme.contentColorHigh,
@@ -266,12 +309,13 @@ fun PlayerScreen(innerPadding: PaddingValues = PaddingValues()) {
                                     is DragInteraction.Cancel -> interactions.remove(interaction.start)
                                 }
                             }
+                            controlling = interactions.isNotEmpty()
                         }
 
                         Spacer(
                             Modifier
-                                .width(8.dp)
-                                .height(32.dp)
+                                .width(SLIDER_THUMB_WIDTH)
+                                .height(SLIDER_THUMB_HEIGHT)
                                 .hoverable(interactionSource = sliderInteractionSource)
                                 .background(
                                     color = MaterialTheme.extendedColorScheme.contentColorHigh,
@@ -299,9 +343,8 @@ fun PlayerScreen(innerPadding: PaddingValues = PaddingValues()) {
                     ) {
                         Text(
                             modifier = Modifier.padding(horizontal = 8.dp),
-                            text = "Lossless",
+                            text = "LOSSLESS",
                             fontSize = 12.sp,
-                            letterSpacing = 2.sp,
                             textAlign = TextAlign.Center,
                         )
                     }
@@ -409,6 +452,26 @@ fun PlayerScreen(innerPadding: PaddingValues = PaddingValues()) {
                     )
                 }
             }
+        }
+
+        // Overlay
+        Box(
+            modifier = Modifier.fillMaxSize()
+        ) {
+            Box(
+                modifier = Modifier
+                    .size(with (LocalDensity.current) { 20f.toDp() })
+                    .offset { albumArtOffset.run { IntOffset(x.roundToInt(), y.roundToInt()) - IntOffset(10, 10) } }
+                    .align(Alignment.TopStart)
+                    .background(color = Color.Green)
+            )
+            Box(
+                modifier = Modifier
+                    .size(with (LocalDensity.current) { 20f.toDp() })
+                    .offset { sliderThumbOffset.run { IntOffset(x.roundToInt(), y.roundToInt()) - IntOffset(10, 10) } }
+                    .align(Alignment.TopStart)
+                    .background(color = Color.Blue)
+            )
         }
     }
 }

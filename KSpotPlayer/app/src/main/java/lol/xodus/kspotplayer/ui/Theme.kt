@@ -191,8 +191,8 @@ val MaterialTheme.extendedColorScheme: ExtendedColorScheme
     @Composable
     get () = ExtendedColorScheme(
         contentColorHigh = LocalContentColor.current,
-        contentColorMiddle = LocalContentColor.current.copy(alpha = 0.6666f),
-        contentColorLow = LocalContentColor.current.copy(alpha = 0.3333f),
+        contentColorMiddle = LocalContentColor.current.copy(alpha = 0.5f),
+        contentColorLow = LocalContentColor.current.copy(alpha = 0.25f),
         effectShadow = Color(0xFF000000).copy(alpha = 0.5f),
         effectLight = Color.White.copy(alpha = 0.75f),
         effectPowerLight = Color(0xFF5485F1).copy(alpha = 0.25f),
