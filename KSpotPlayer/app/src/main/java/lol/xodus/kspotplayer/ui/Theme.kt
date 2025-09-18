@@ -7,9 +7,7 @@ import androidx.compose.material3.Typography
 import androidx.compose.material3.darkColorScheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.Immutable
-import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
@@ -182,7 +180,8 @@ data class ExtendedColorScheme(
     val contentColorHigh: Color,
     val contentColorMiddle: Color,
     val contentColorLow: Color,
-    val effectShadow: Color,
+    val effectShadow1: Color,
+    val effectShadow2: Color,
     val effectLight1: Color,
     val effectLight2: Color,
     val effectPowerLight: Color,
@@ -194,10 +193,11 @@ val MaterialTheme.extendedColorScheme: ExtendedColorScheme
         contentColorHigh = LocalContentColor.current,
         contentColorMiddle = LocalContentColor.current.copy(alpha = 0.5f),
         contentColorLow = LocalContentColor.current.copy(alpha = 0.25f),
-        effectShadow = Color(0xFF000000).copy(alpha = 0.5f),
-        effectLight1 = Color.White,
-        effectLight2 = Color.White.copy(alpha = 0.5f),
-        effectPowerLight = Color(0xFF5485F1).copy(alpha = 0.1f),
+        effectShadow1 = Color(0xFF000000).copy(alpha = 0.5f),
+        effectShadow2 = Color(0xFF000000).copy(alpha = 0.25f),
+        effectLight1 = Color(0xFFFFFFFF),
+        effectLight2 = Color(0xFFFFFFFF).copy(alpha = 0.5f),
+        effectPowerLight = Color(0xFF5485F1).copy(alpha = 0.15f),
     )
 
 

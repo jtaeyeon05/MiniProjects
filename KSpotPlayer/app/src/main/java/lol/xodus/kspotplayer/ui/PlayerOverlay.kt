@@ -53,7 +53,7 @@ fun PlayerOverlay(
     val debugColorMap = mapOf(
         "Marker" to Color.Green,
         "CenterLine" to Color.Gray,
-        "RadialLight" to Color.Cyan,
+        "RadialPower" to Color.Cyan,
         "SidePower" to Color.LightGray,
         "Shadow" to Color.White,
         "CenterForwardPower" to Color.Yellow,
@@ -200,14 +200,14 @@ private fun DrawScope.drawEffect(
     }
 
     // CenterLine ↑
-    // RadialLight ↓
+    // RadialPower ↓
 
     run {
-        val radius = 64.dp.toPx()
+        val radius = 96.dp.toPx()
 
         if (!debugMode) {
             drawArc(
-                color = extendedColorScheme.effectLight2,
+                color = extendedColorScheme.effectPowerLight,
                 startAngle = -thetaLeft * 180f / PI_F,
                 sweepAngle = SCATTER_RADIAN * 2f * 180f / PI_F,
                 useCenter = true,
@@ -222,7 +222,7 @@ private fun DrawScope.drawEffect(
             )
         } else {
             drawArc(
-                color = debugColorMap.getOrDefault("RadialLight", Color.White),
+                color = debugColorMap.getOrDefault("RadialPower", Color.White),
                 startAngle = -thetaLeft * 180f / PI_F,
                 sweepAngle = SCATTER_RADIAN * 2f * 180f / PI_F,
                 useCenter = true,
@@ -239,11 +239,11 @@ private fun DrawScope.drawEffect(
         }
     }
 
-    // RadialLight ↑
+    // RadialPower ↑
     // SidePower ↓
 
     run {
-        val sidePowerRadian = PI_F * 0.03f
+        val sidePowerRadian = PI_F * 0.02f
         // LeftSidePower
         run {
             val left = thetaLeft + sidePowerRadian
@@ -367,7 +367,7 @@ private fun DrawScope.drawEffect(
         if (!debugMode) {
             drawPath(
                 path = path,
-                color = extendedColorScheme.effectShadow,
+                color = extendedColorScheme.effectShadow1,
             )
         } else {
             drawPath(
