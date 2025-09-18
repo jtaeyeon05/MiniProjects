@@ -48,6 +48,7 @@ fun PlayerOverlay(
     sliderThumbOffset: Offset,
     sliderThumbSize: DpSize,
     debugMode: Boolean = false,
+    reversedSafeArea: Boolean = false,
 ) {
     val extendedColorScheme = MaterialTheme.extendedColorScheme
     val debugColorMap = mapOf(
@@ -93,7 +94,7 @@ fun PlayerOverlay(
                 albumArtOffset = albumArtOffset,
                 sliderThumbOffset = sliderThumbOffset,
                 sliderThumbSize = sliderThumbSize,
-                safeArea = SAFE_AREA_PX,
+                safeArea = if (reversedSafeArea) -SAFE_AREA_PX else SAFE_AREA_PX,
                 extendedColorScheme = extendedColorScheme,
                 debugMode = false,
                 debugColorMap = debugColorMap
@@ -106,7 +107,7 @@ fun PlayerOverlay(
                     albumArtOffset = albumArtOffset,
                     sliderThumbOffset = sliderThumbOffset,
                     sliderThumbSize = sliderThumbSize,
-                    safeArea = SAFE_AREA_PX,
+                    safeArea = if (reversedSafeArea) -SAFE_AREA_PX else SAFE_AREA_PX,
                     extendedColorScheme = extendedColorScheme,
                     debugMode = true,
                     debugColorMap = debugColorMap

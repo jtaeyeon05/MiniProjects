@@ -56,11 +56,14 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.IconButtonDefaults
+import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.LocalTextStyle
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Slider
 import androidx.compose.material3.SliderDefaults
 import androidx.compose.material3.Surface
+import androidx.compose.material3.Switch
+import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -115,6 +118,9 @@ fun PlayerScreen(innerPadding: PaddingValues = PaddingValues()) {
     var repeat by rememberSaveable { mutableIntStateOf(0) }
     var favorite by rememberSaveable { mutableStateOf(false) }
     var more by rememberSaveable { mutableStateOf(false) }
+
+    var debugMode by rememberSaveable { mutableStateOf(false) }
+    var reversedSafeArea by rememberSaveable { mutableStateOf(false) }
 
     var sliderValue by rememberSaveable { mutableFloatStateOf(0.5f) }
     val sliderInteractionSource = remember { MutableInteractionSource() }
@@ -528,16 +534,58 @@ fun PlayerScreen(innerPadding: PaddingValues = PaddingValues()) {
                 Surface(
                     modifier = Modifier.fillMaxSize(),
                     shape = RoundedCornerShape(18.dp),
-                    color = Color.White,
-                    contentColor = Color.Black,
+                    color = MaterialTheme.colorScheme.inverseSurface.copy(alpha = 0.75f),
+                    contentColor = MaterialTheme.colorScheme.inverseOnSurface,
                     border = BorderStroke(
-                        width = 4.dp,
-                        color = Color.Black
+                        width = 1.dp,
+                        color = MaterialTheme.colorScheme.inverseOnSurface.copy(alpha = 0.75f)
                     ),
                 ) {
-                    Box(
-                        modifier = Modifier.padding(12.dp).padding(32.dp)
-                    )
+                    Column(
+                        modifier = Modifier.padding(
+                            vertical = 12.dp,
+                            horizontal = 18.dp
+                        )
+                    ) {
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(12.dp),
+                        ) {
+                            Text(
+                                modifier = Modifier.weight(1f),
+                                text = "DebugMode"
+                            )
+                            Switch(
+                                checked = debugMode,
+                                onCheckedChange = { debugMode = it },
+                                colors = SwitchDefaults.colors(
+                                    checkedThumbColor = LocalContentColor.current,
+                                    checkedTrackColor = LocalContentColor.current.copy(alpha = 0.25f),
+                                    uncheckedThumbColor = LocalContentColor.current,
+                                    uncheckedTrackColor = Color.Transparent,
+                                ),
+                            )
+                        }
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(12.dp),
+                        ) {
+                            Text(
+                                modifier = Modifier.weight(1f),
+                                text = "ReversedSafeArea"
+                            )
+                            Switch(
+                                checked = reversedSafeArea,
+                                onCheckedChange = { reversedSafeArea = it },
+                                colors = SwitchDefaults.colors(
+                                    checkedThumbColor = LocalContentColor.current,
+                                    checkedTrackColor = LocalContentColor.current.copy(alpha = 0.25f),
+                                    uncheckedThumbColor = LocalContentColor.current,
+                                    uncheckedTrackColor = Color.Transparent,
+                                ),
+                            )
+                        }
+                    }
                 }
             }
 
@@ -554,7 +602,8 @@ fun PlayerScreen(innerPadding: PaddingValues = PaddingValues()) {
                         width = SLIDER_THUMB_WIDTH,
                         height = SLIDER_THUMB_HEIGHT
                     ),
-                    debugMode = favorite,
+                    debugMode = debugMode,
+                    reversedSafeArea = reversedSafeArea
                 )
             }
         }
