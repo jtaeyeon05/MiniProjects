@@ -549,7 +549,7 @@ fun PlayerScreen(innerPadding: PaddingValues = PaddingValues()) {
                     ) {
                         Row(
                             verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.spacedBy(12.dp),
+                            horizontalArrangement = Arrangement.spacedBy(16.dp),
                         ) {
                             Text(
                                 modifier = Modifier.weight(1f),
@@ -566,24 +566,26 @@ fun PlayerScreen(innerPadding: PaddingValues = PaddingValues()) {
                                 ),
                             )
                         }
-                        Row(
-                            verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.spacedBy(12.dp),
-                        ) {
-                            Text(
-                                modifier = Modifier.weight(1f),
-                                text = "ReversedSafeArea"
-                            )
-                            Switch(
-                                checked = reversedSafeArea,
-                                onCheckedChange = { reversedSafeArea = it },
-                                colors = SwitchDefaults.colors(
-                                    checkedThumbColor = LocalContentColor.current,
-                                    checkedTrackColor = LocalContentColor.current.copy(alpha = 0.25f),
-                                    uncheckedThumbColor = LocalContentColor.current,
-                                    uncheckedTrackColor = Color.Transparent,
-                                ),
-                            )
+                        if (debugMode) {
+                            Row(
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.spacedBy(16.dp),
+                            ) {
+                                Text(
+                                    modifier = Modifier.weight(1f),
+                                    text = "ReversedSafeArea"
+                                )
+                                Switch(
+                                    checked = reversedSafeArea,
+                                    onCheckedChange = { reversedSafeArea = it },
+                                    colors = SwitchDefaults.colors(
+                                        checkedThumbColor = LocalContentColor.current,
+                                        checkedTrackColor = LocalContentColor.current.copy(alpha = 0.25f),
+                                        uncheckedThumbColor = LocalContentColor.current,
+                                        uncheckedTrackColor = Color.Transparent,
+                                    ),
+                                )
+                            }
                         }
                     }
                 }
@@ -603,7 +605,7 @@ fun PlayerScreen(innerPadding: PaddingValues = PaddingValues()) {
                         height = SLIDER_THUMB_HEIGHT
                     ),
                     debugMode = debugMode,
-                    reversedSafeArea = reversedSafeArea
+                    reversedSafeArea = debugMode && reversedSafeArea
                 )
             }
         }
