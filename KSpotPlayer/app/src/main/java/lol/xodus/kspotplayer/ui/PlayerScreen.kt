@@ -99,6 +99,7 @@ import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.min
 import androidx.compose.ui.unit.sp
+import kotlinx.coroutines.delay
 import kotlin.math.roundToInt
 
 
@@ -112,6 +113,8 @@ private val SLIDER_THUMB_HEIGHT = 32.dp
 fun PlayerScreen(innerPadding: PaddingValues = PaddingValues()) {
     val density = LocalDensity.current
 
+    val length = 230f
+    var time by rememberSaveable { mutableFloatStateOf(0f) }
     var playing by rememberSaveable { mutableStateOf(false) }
     var controlling by rememberSaveable { mutableStateOf(false) }
     var shuffle by rememberSaveable { mutableStateOf(false) }
@@ -122,12 +125,28 @@ fun PlayerScreen(innerPadding: PaddingValues = PaddingValues()) {
     var debugMode by rememberSaveable { mutableStateOf(false) }
     var reversedSafeArea by rememberSaveable { mutableStateOf(false) }
 
-    var sliderValue by rememberSaveable { mutableFloatStateOf(0.5f) }
+    var sliderValue by rememberSaveable { mutableFloatStateOf(0f) }
     val sliderInteractionSource = remember { MutableInteractionSource() }
 
     var albumArtOffset by remember { mutableStateOf(Offset.Zero) } // 중앙 기준
     var sliderThumbOffset by remember { mutableStateOf(Offset.Zero) } // 중앙 기준
     var popupMenuIntOffset by remember { mutableStateOf(IntOffset.Zero) } // 우측 상단 기준, x = x + buttonSize - ScreenWidth
+
+    LaunchedEffect(
+        playing, controlling, repeat
+    ) {
+        while (playing && !controlling) {
+            delay(100)
+            time += 0.1f
+            if (time > length) {
+                time = 0f
+                if (repeat == 0) {
+                    playing = false
+                }
+            }
+            sliderValue = time / length
+        }
+    }
 
     Surface(
         modifier = Modifier
@@ -310,6 +329,7 @@ fun PlayerScreen(innerPadding: PaddingValues = PaddingValues()) {
                         onValueChange = {
                             controlling = true
                             sliderValue = it
+                            time = sliderValue * length
                         },
                         onValueChangeFinished = {
                             controlling = false
@@ -366,7 +386,7 @@ fun PlayerScreen(innerPadding: PaddingValues = PaddingValues()) {
                         horizontalArrangement = Arrangement.SpaceBetween,
                     ) {
                         Text(
-                            text = "0:23",
+                            text = "${(time / 60f).toInt()}:${(time % 60f).toInt().let { if (it < 10) "0$it" else "$it" }}",
                             color = MaterialTheme.extendedColorScheme.contentColorMiddle,
                             fontSize = 12.sp,
                             letterSpacing = 2.sp,
@@ -385,7 +405,7 @@ fun PlayerScreen(innerPadding: PaddingValues = PaddingValues()) {
                             )
                         }
                         Text(
-                            text = "4:15",
+                            text = "${(length / 60f).toInt()}:${(length % 60f).toInt().let { if (it < 10) "0$it" else "$it" }}",
                             color = MaterialTheme.extendedColorScheme.contentColorMiddle,
                             fontSize = 12.sp,
                             letterSpacing = 2.sp,
