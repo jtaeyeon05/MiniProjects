@@ -434,7 +434,10 @@ fun PlayerScreen(innerPadding: PaddingValues = PaddingValues()) {
                         )
                     }
                     IconButton(
-                        onClick = {  },
+                        onClick = {
+                            time = 0f
+                            sliderValue = 0f
+                        },
                         modifier = Modifier.size(64.dp),
                     ) {
                         Icon(
@@ -458,7 +461,10 @@ fun PlayerScreen(innerPadding: PaddingValues = PaddingValues()) {
                         )
                     }
                     IconButton(
-                        onClick = {  },
+                        onClick = {
+                            time = 0f
+                            sliderValue = 0f
+                        },
                         modifier = Modifier.size(64.dp),
                     ) {
                         Icon(
